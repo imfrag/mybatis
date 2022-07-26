@@ -20,8 +20,11 @@ package org.apache.ibatis.parsing;
  */
 public class GenericTokenParser {
 
+  // 占位符的开始标志符号
   private final String openToken;
+  // 占位符的结束标志符号
   private final String closeToken;
+  // 占位符处理器，即如何将占位符转换为属性值
   private final TokenHandler handler;
 
   public GenericTokenParser(String openToken, String closeToken, TokenHandler handler) {
@@ -35,20 +38,28 @@ public class GenericTokenParser {
       return "";
     }
     // search open token
+    // 寻找openToken位置
     int start = text.indexOf(openToken, 0);
+    // 未找到，表示非占位符并返回
     if (start == -1) {
       return text;
     }
     char[] src = text.toCharArray();
     int offset = 0;
+
+    // 解析之后的结果
     final StringBuilder builder = new StringBuilder();
     StringBuilder expression = null;
+    // 因为一个配置可能存在多个占位符，即#{token1}...#{token2}
     while (start > -1) {
+      // 转义字符
       if (start > 0 && src[start - 1] == '\\') {
         // this open token is escaped. remove the backslash and continue.
         builder.append(src, offset, start - offset - 1).append(openToken);
         offset = start + openToken.length();
-      } else {
+      }
+      // 非转义字符
+      else {
         // found open token. let's search close token.
         if (expression == null) {
           expression = new StringBuilder();
@@ -75,6 +86,7 @@ public class GenericTokenParser {
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
+          // 委托占位符处理器解析占位符，将占位符中的表达式转换为属性值
           builder.append(handler.handleToken(expression.toString()));
           offset = end + closeToken.length();
         }

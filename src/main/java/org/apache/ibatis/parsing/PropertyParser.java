@@ -23,6 +23,7 @@ import java.util.Properties;
  */
 public class PropertyParser {
 
+  // 相关配置前缀
   private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
   /**
    * The special property key that indicate whether enable a default value on placeholder.
@@ -32,6 +33,8 @@ public class PropertyParser {
    * </p>
    * @since 3.4.2
    */
+  // 允许占位符默认值
+  // <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/>
   public static final String KEY_ENABLE_DEFAULT_VALUE = KEY_PREFIX + "enable-default-value";
 
   /**
@@ -41,9 +44,13 @@ public class PropertyParser {
    * </p>
    * @since 3.4.2
    */
+  // 占位符中表达式和默认值之间的分隔符，即#{expression:defaultValue}
+  // <property name="org.apache.ibatis.parsing.PropertyParser.default-value-separator" value="?:"/>
   public static final String KEY_DEFAULT_VALUE_SEPARATOR = KEY_PREFIX + "default-value-separator";
 
+  // 默认不开启占位符的默认值
   private static final String ENABLE_DEFAULT_VALUE = "false";
+  // 默认分隔符
   private static final String DEFAULT_VALUE_SEPARATOR = ":";
 
   private PropertyParser() {
@@ -51,11 +58,15 @@ public class PropertyParser {
   }
 
   public static String parse(String string, Properties variables) {
+    // GenericTokenParser封装了占位符处理器，主要是
+    // 1.配置占位符开始和结束标识符号
+    // 2.解析占位符中的expression，并委托TokenHandler解析
     VariableTokenHandler handler = new VariableTokenHandler(variables);
     GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
     return parser.parse(string);
   }
 
+  // 动态占位符处理器，定义了如何解析占位符表达式
   private static class VariableTokenHandler implements TokenHandler {
     private final Properties variables;
     private final boolean enableDefaultValue;
@@ -73,8 +84,10 @@ public class PropertyParser {
 
     @Override
     public String handleToken(String content) {
+      // 无配置properties，则直接返回
       if (variables != null) {
         String key = content;
+        // 启用默认值
         if (enableDefaultValue) {
           final int separatorIndex = content.indexOf(defaultValueSeparator);
           String defaultValue = null;
@@ -82,14 +95,17 @@ public class PropertyParser {
             key = content.substring(0, separatorIndex);
             defaultValue = content.substring(separatorIndex + defaultValueSeparator.length());
           }
+          // 默认值不为空
           if (defaultValue != null) {
             return variables.getProperty(key, defaultValue);
           }
         }
+        // 若配置了key的属性值，则返回值
         if (variables.containsKey(key)) {
           return variables.getProperty(key);
         }
       }
+      // 返回解析前的值
       return "${" + content + "}";
     }
   }
