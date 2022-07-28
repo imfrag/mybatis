@@ -25,18 +25,25 @@ import java.util.List;
 
 import org.apache.ibatis.lang.UsesJava8;
 
+/**
+ * 参数名工具类，获取构造方法、普通方法的参数列表
+ */
 @UsesJava8
 public class ParamNameUtil {
+  // 获取普通方法参数名集合
   public static List<String> getParamNames(Method method) {
     return getParameterNames(method);
   }
 
+  // 获取构造方法参数名集合
   public static List<String> getParamNames(Constructor<?> constructor) {
     return getParameterNames(constructor);
   }
 
+  // Executable是Method和Constructor的父类
   private static List<String> getParameterNames(Executable executable) {
     final List<String> names = new ArrayList<String>();
+    // 获取参数集合
     final Parameter[] params = executable.getParameters();
     for (Parameter param : params) {
       names.add(param.getName());

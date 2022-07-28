@@ -28,15 +28,18 @@ public final class PropertyNamer {
     // Prevent Instantiation of Static Class
   }
 
+  // 将方法名装换为属性名，如setAge -> age
   public static String methodToProperty(String name) {
     if (name.startsWith("is")) {
       name = name.substring(2);
     } else if (name.startsWith("get") || name.startsWith("set")) {
       name = name.substring(3);
     } else {
+      // 只能处理get和set方法，否则抛出异常
       throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
     }
 
+    // 因为java明明方式为驼峰，因此需要将name的首字符小写
     if (name.length() == 1 || (name.length() > 1 && !Character.isUpperCase(name.charAt(1)))) {
       name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
     }
@@ -44,6 +47,7 @@ public final class PropertyNamer {
     return name;
   }
 
+  // 判断给定方法名是否为属性，即判断方法名是否以get、set或is开头
   public static boolean isProperty(String name) {
     return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
   }

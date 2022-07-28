@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 /**
  * @author Iwao AVE!
+ * todo-frag: Type类型解析类
  */
 public class TypeParameterResolver {
 

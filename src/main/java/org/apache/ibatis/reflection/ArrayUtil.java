@@ -36,9 +36,11 @@ public class ArrayUtil {
       return 0;
     }
     final Class<?> clazz = obj.getClass();
+    // 非数组类
     if (!clazz.isArray()) {
       return obj.hashCode();
     }
+    // 获取数组类型
     final Class<?> componentType = clazz.getComponentType();
     if (long.class.equals(componentType)) {
       return Arrays.hashCode((long[]) obj);

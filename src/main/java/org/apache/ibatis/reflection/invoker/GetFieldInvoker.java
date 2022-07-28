@@ -30,11 +30,13 @@ public class GetFieldInvoker implements Invoker {
 
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
+    // 调用target的get方法获取其field属性
     return field.get(target);
   }
 
   @Override
   public Class<?> getType() {
+    // 返回属性类型
     return field.getType();
   }
 }

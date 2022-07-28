@@ -30,6 +30,7 @@ public class SetFieldInvoker implements Invoker {
 
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
+    // 将target对象的field属性设置为args[0]
     field.set(target, args[0]);
     return null;
   }

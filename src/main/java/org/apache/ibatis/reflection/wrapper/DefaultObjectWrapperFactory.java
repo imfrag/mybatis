@@ -20,6 +20,7 @@ import org.apache.ibatis.reflection.ReflectionException;
 
 /**
  * @author Clinton Begin
+ * 默认情况不使用ObjectWrapperFactory获取指定对象的ObjectWrapper
  */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
 

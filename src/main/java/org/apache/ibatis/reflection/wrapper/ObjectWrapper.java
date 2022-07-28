@@ -23,6 +23,7 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ * 对象包装器接口，ObjectWrapper是MetaClass指定类的具象化
  */
 public interface ObjectWrapper {
 

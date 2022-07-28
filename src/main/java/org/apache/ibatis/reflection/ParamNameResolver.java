@@ -29,6 +29,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+// 参数名解析类
 public class ParamNameResolver {
 
   private static final String GENERIC_NAME_PREFIX = "param";
@@ -45,35 +46,52 @@ public class ParamNameResolver {
    * <li>aMethod(int a, int b) -&gt; {{0, "0"}, {1, "1"}}</li>
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
+   *
+   * 参数映射
+   * key：参数顺序
+   * value：参数名称
    */
   private final SortedMap<Integer, String> names;
-
+  /**
+   * 是否有{@link Param}注解
+   */
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
+    // 获取参数类型
     final Class<?>[] paramTypes = method.getParameterTypes();
+    // 获取参数注解（每个参数可能有多个注解）
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<Integer, String>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+      // 参数类型为RowBounds或ResultHandler的子类时跳过
       if (isSpecialParameter(paramTypes[paramIndex])) {
         // skip special parameters
         continue;
       }
+
       String name = null;
+      // 获取参数的注解
       for (Annotation annotation : paramAnnotations[paramIndex]) {
+        // 注解为@Param类型，参数名则为注解中的value
         if (annotation instanceof Param) {
           hasParamAnnotation = true;
           name = ((Param) annotation).value();
           break;
         }
       }
+
+      // 无@Param注解修饰当前参数
       if (name == null) {
         // @Param was not specified.
-        if (config.isUseActualParamName()) {
+        if (config.isUseActualParamName()) {  // true
+          // 委托给ParamNameUtil类，寻找method方法的第paramIndex的参数名
           name = getActualParamName(method, paramIndex);
         }
+
+        // 兜底，使用map的顺序
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
@@ -82,6 +100,8 @@ public class ParamNameResolver {
       }
       map.put(paramIndex, name);
     }
+
+    // 构建不可变集合
     names = Collections.unmodifiableSortedMap(map);
   }
 
@@ -113,13 +133,19 @@ public class ParamNameResolver {
    */
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();
+    // args为空或该方法参数为空
     if (args == null || paramCount == 0) {
       return null;
-    } else if (!hasParamAnnotation && paramCount == 1) {
+    }
+    // 该方法参数无@Param注解，且仅有一个参数
+    else if (!hasParamAnnotation && paramCount == 1) {
+      // 获取映射关系中第一个参数对应的值
       return args[names.firstKey()];
-    } else {
+    }
+    else {
       final Map<String, Object> param = new ParamMap<Object>();
       int i = 0;
+      // 遍历参数映射集合
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
         param.put(entry.getValue(), args[entry.getKey()]);
         // add generic param names (param1, param2, ...)

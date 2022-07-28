@@ -44,9 +44,12 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
   @SuppressWarnings("unchecked")
   @Override
+  // 创建指定类型的对象
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+    // 如果type是接口类型，则转化为指定默认的实现类
     Class<?> classToCreate = resolveInterface(type);
     // we know types are assignable
+    // 创建实例
     return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
   }
 
@@ -58,6 +61,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
+      // 使用默认的构造方法
       if (constructorArgTypes == null || constructorArgs == null) {
         constructor = type.getDeclaredConstructor();
         if (!constructor.isAccessible()) {
@@ -65,12 +69,15 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         }
         return constructor.newInstance();
       }
+
+      // 获取指定参数类型的构造方法，并创建实例
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
       if (!constructor.isAccessible()) {
         constructor.setAccessible(true);
       }
       return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
     } catch (Exception e) {
+      // 拼接参数类型名字
       StringBuilder argTypes = new StringBuilder();
       if (constructorArgTypes != null && !constructorArgTypes.isEmpty()) {
         for (Class<?> argType : constructorArgTypes) {
@@ -79,6 +86,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         }
         argTypes.deleteCharAt(argTypes.length() - 1); // remove trailing ,
       }
+      // 拼接参数值
       StringBuilder argValues = new StringBuilder();
       if (constructorArgs != null && !constructorArgs.isEmpty()) {
         for (Object argValue : constructorArgs) {
@@ -107,6 +115,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     return classToCreate;
   }
 
+  // 判断type是否是Collection子类
   @Override
   public <T> boolean isCollection(Class<T> type) {
     return Collection.class.isAssignableFrom(type);

@@ -42,6 +42,7 @@ public abstract class BaseWrapper implements ObjectWrapper {
     }
   }
 
+  // 获取集合指定位置的值
   protected Object getCollectionValue(PropertyTokenizer prop, Object collection) {
     if (collection instanceof Map) {
       return ((Map) collection).get(prop.getIndex());

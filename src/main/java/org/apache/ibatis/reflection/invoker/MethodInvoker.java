@@ -26,18 +26,23 @@ public class MethodInvoker implements Invoker {
   private final Class<?> type;
   private final Method method;
 
+  // 构造方法
   public MethodInvoker(Method method) {
     this.method = method;
 
+    // 方法参数数量为1，表明该方法为对象的set方法，type设置为参数类型
     if (method.getParameterTypes().length == 1) {
       type = method.getParameterTypes()[0];
-    } else {
+    }
+    // 否则为get方法，type设置为返回类型
+    else {
       type = method.getReturnType();
     }
   }
 
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
+    // 调用target对象的method方法
     return method.invoke(target, args);
   }
 

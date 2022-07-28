@@ -29,10 +29,13 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
  * @author Clinton Begin
+ * 对象元数据，可以理解为对ObjectWrapper的增强
  */
 public class MetaObject {
 
+  // 原始对象，即被封装的对象
   private final Object originalObject;
+  // 原始对象对应的封装对象
   private final ObjectWrapper objectWrapper;
   private final ObjectFactory objectFactory;
   private final ObjectWrapperFactory objectWrapperFactory;
@@ -44,23 +47,34 @@ public class MetaObject {
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
 
+    // 创建ObjectWrapper对象
     if (object instanceof ObjectWrapper) {
       this.objectWrapper = (ObjectWrapper) object;
-    } else if (objectWrapperFactory.hasWrapperFor(object)) {
+    }
+    // ObjectWrapperFactory实现类为空，因此如果需要使用工厂类，需要自定义实现ObjectWrapperFactory接口
+    else if (objectWrapperFactory.hasWrapperFor(object)) {
       this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
     } else if (object instanceof Map) {
       this.objectWrapper = new MapWrapper(this, (Map) object);
     } else if (object instanceof Collection) {
       this.objectWrapper = new CollectionWrapper(this, (Collection) object);
-    } else {
+    }
+    // 如果对象不是集合类或Map类，则通过构造方法创建ObjectWrapper对象
+    else {
       this.objectWrapper = new BeanWrapper(this, object);
     }
   }
 
-  public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
+  public static MetaObject forObject(Object object,
+                                     ObjectFactory objectFactory,
+                                     ObjectWrapperFactory objectWrapperFactory,
+                                     ReflectorFactory reflectorFactory) {
+    // object为空时，返回NullObject的封装类
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;
-    } else {
+    }
+    // 否则通过构造方法创建MetaObject实例
+    else {
       return new MetaObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
     }
   }
@@ -81,6 +95,7 @@ public class MetaObject {
     return originalObject;
   }
 
+  //
   public String findProperty(String propName, boolean useCamelCaseMapping) {
     return objectWrapper.findProperty(propName, useCamelCaseMapping);
   }
@@ -141,7 +156,9 @@ public class MetaObject {
     }
   }
 
+  // 创建指定属性的MetaObject
   public MetaObject metaObjectForProperty(String name) {
+    // 获取当前对象的name属性值
     Object value = getValue(name);
     return MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);
   }

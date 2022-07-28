@@ -26,18 +26,22 @@ public final class PropertyCopier {
     // Prevent Instantiation of Static Class
   }
 
+  // 指定类型type，将sourceBean属性复制到destinationBean中
   public static void copyBeanProperties(Class<?> type, Object sourceBean, Object destinationBean) {
     Class<?> parent = type;
     while (parent != null) {
+      // 获取当前类型声明的属性
       final Field[] fields = parent.getDeclaredFields();
       for(Field field : fields) {
         try {
           field.setAccessible(true);
+          // 复制属性
           field.set(destinationBean, field.get(sourceBean));
         } catch (Exception e) {
           // Nothing useful to do, will only fail on final fields, which will be ignored.
         }
       }
+      // 遍历父类中声明的属性
       parent = parent.getSuperclass();
     }
   }
