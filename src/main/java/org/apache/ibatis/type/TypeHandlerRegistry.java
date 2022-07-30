@@ -392,12 +392,16 @@ public final class TypeHandlerRegistry {
   public void register(Class<?> typeHandlerClass) {
     boolean mappedTypeFound = false;
     MappedTypes mappedTypes = typeHandlerClass.getAnnotation(MappedTypes.class);
+    // TypeHandlerClass声明了MappedTypes注解，并设置了其value
     if (mappedTypes != null) {
+      // 从注解中的value获取javaTypeClass，并注册
       for (Class<?> javaTypeClass : mappedTypes.value()) {
         register(javaTypeClass, typeHandlerClass);
         mappedTypeFound = true;
       }
     }
+
+    // TypeHandlerClass为声明MappedTypes
     if (!mappedTypeFound) {
       register(getInstance(null, typeHandlerClass));
     }
@@ -410,7 +414,11 @@ public final class TypeHandlerRegistry {
   }
 
   public void register(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
-    register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
+    // register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
+    // 1. 创建TypeHandler实例
+    TypeHandler<Object> typeHandler = getInstance(javaTypeClass, typeHandlerClass);
+    // 2. 注册
+    register(javaTypeClass, typeHandler);
   }
 
   // java type + jdbc type + handler type

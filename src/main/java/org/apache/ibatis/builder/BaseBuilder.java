@@ -30,10 +30,14 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * @author Clinton Begin
+ * 基础构建类
  */
 public abstract class BaseBuilder {
+  // 配置对象
   protected final Configuration configuration;
+  // 别名注册器，来自Configuration
   protected final TypeAliasRegistry typeAliasRegistry;
+  // 数据类型处理器注册器，来自Configuration
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {
@@ -63,6 +67,7 @@ public abstract class BaseBuilder {
     return new HashSet<String>(Arrays.asList(value.split(",")));
   }
 
+  // 将类型的名字解析为JdbcType枚举类
   protected JdbcType resolveJdbcType(String alias) {
     if (alias == null) {
       return null;
@@ -74,6 +79,7 @@ public abstract class BaseBuilder {
     }
   }
 
+  // 解析为ResultSetType类型
   protected ResultSetType resolveResultSetType(String alias) {
     if (alias == null) {
       return null;
@@ -96,7 +102,9 @@ public abstract class BaseBuilder {
     }
   }
 
+  // 创建指定alias的实例
   protected Object createInstance(String alias) {
+    // 获取类对象
     Class<?> clazz = resolveClass(alias);
     if (clazz == null) {
       return null;

@@ -23,8 +23,11 @@ import org.apache.ibatis.transaction.TransactionFactory;
  * @author Clinton Begin
  */
 public final class Environment {
+  // mybatis-config可以配置多个environment，id用来唯一表示一个environment
   private final String id;
+  // 事务工厂
   private final TransactionFactory transactionFactory;
+  // 数据源
   private final DataSource dataSource;
 
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {

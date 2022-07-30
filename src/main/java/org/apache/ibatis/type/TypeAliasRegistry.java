@@ -108,11 +108,15 @@ public class TypeAliasRegistry {
         return null;
       }
       // issue #748
+      // 类型名转小写
       String key = string.toLowerCase(Locale.ENGLISH);
       Class<T> value;
+      // 如果已经注册了该类型，返回其Class对象
       if (TYPE_ALIASES.containsKey(key)) {
         value = (Class<T>) TYPE_ALIASES.get(key);
-      } else {
+      }
+      // 否则，使用Resources加载指定类名的Class对象
+      else {
         value = (Class<T>) Resources.classForName(string);
       }
       return value;
@@ -139,20 +143,28 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(Class<?> type) {
+    // 获取类名（首字母小写）
     String alias = type.getSimpleName();
+    // 获取类的注解@Alias的value
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
+    // 如果指定了注解的value，则使用该value值作为别名
     if (aliasAnnotation != null) {
       alias = aliasAnnotation.value();
-    } 
+    }
+    // 否则使用类名，首字母小写
     registerAlias(alias, type);
   }
 
   public void registerAlias(String alias, Class<?> value) {
+    // 1. 别名不能为空
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");
     }
     // issue #748
+    // 2. 则Configuration中注册时，别名的key转小写
     String key = alias.toLowerCase(Locale.ENGLISH);
+    // 3. 别名已注册 && 别名的类对象不为空 && 已有的Class对象和配置中的Class对象不同，则抛出异常
+    // 3.x 相同别名绑定不同类时，抛出异常
     if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
       throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
     }

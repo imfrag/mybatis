@@ -72,10 +72,22 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
+  /**
+   * 构建SqlSessionFactory实例
+   * @param inputStream mybatis-config.xml配置文件的输入流
+   * @param environment 用户指定环境id
+   * @param properties  用户传入的配置参数
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
+      // 1.创建XMLConfigBuilder实例
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-      return build(parser.parse());
+      // 2.将配置文件解析为Configuration对象
+      Configuration configuration = parser.parse();
+      // 3.创建DefaultSqlSessionFactory对象
+      return build(configuration);
+      // return build(parser.parse());
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
     } finally {
