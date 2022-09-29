@@ -71,9 +71,12 @@ public class Reflector {
     addDefaultConstructor(clazz);
     addGetMethods(clazz);
     addSetMethods(clazz);
+    // 处理没有getter/setter方法的字段
     addFields(clazz);
+
     readablePropertyNames = getMethods.keySet().toArray(new String[getMethods.keySet().size()]);
     writeablePropertyNames = setMethods.keySet().toArray(new String[setMethods.keySet().size()]);
+
     for (String propName : readablePropertyNames) {
       caseInsensitivePropertyMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
     }
@@ -109,7 +112,11 @@ public class Reflector {
     Map<String, List<Method>> conflictingGetters = new HashMap<String, List<Method>>();
     Method[] methods = getClassMethods(cls);
 
-    // 遍历每个Method，判断是否为get方法
+    /**
+     * 遍历每个Method，判断是否为get方法
+     * 1. 方法参数为0
+     * 2. 方法名为get*或is*格式
+     */
     for (Method method : methods) {
       // get方法参数数量为0
       if (method.getParameterTypes().length > 0) {
@@ -119,14 +126,14 @@ public class Reflector {
       // get方法通常以get或is开头
       if ((name.startsWith("get") && name.length() > 3)
           || (name.startsWith("is") && name.length() > 2)) {
-        // 获取属性，即将方法名转换为属性名，getName -> Name
+        // 获取属性，即将方法名转换为属性名，getName -> name
         name = PropertyNamer.methodToProperty(name);
         // 添加进冲突集合中
         addMethodConflict(conflictingGetters, name, method);
       }
     }
 
-    // 解决冲突方法
+    // 解决冲突方法，如子类重写父类方法并修改了合法返回类型
     resolveGetterConflicts(conflictingGetters);
   }
 
@@ -147,6 +154,7 @@ public class Reflector {
         // 获取最匹配和当前方法的返回类型
         Class<?> winnerType = winner.getReturnType();
         Class<?> candidateType = candidate.getReturnType();
+
         // 返回类型相同
         if (candidateType.equals(winnerType)) {
           // 返回类型不是boolean，两个方法一样有歧义
@@ -342,7 +350,7 @@ public class Reflector {
 
       // 属性可访问
       if (field.isAccessible()) {
-        // 属性名不在setMethods中，即该属性没有set方法
+        // 字段名不在setMethods中，即该字段没有set方法
         if (!setMethods.containsKey(field.getName())) {
           // issue #379 - removed the check for final because JDK 1.5 allows
           // modification of final fields through reflection (JSR-133). (JGB)
@@ -430,7 +438,7 @@ public class Reflector {
         // check to see if the method is already known
         // if it is known, then an extended class must have
         // overridden a method
-        // 方法未添加
+        // 方法未添加（子类中未重写父类中的方法）
         if (!uniqueMethods.containsKey(signature)) {
           if (canAccessPrivateMethods()) {
             try {
@@ -447,7 +455,7 @@ public class Reflector {
   }
 
   private String getSignature(Method method) {
-    // 签名结果
+    // 签名结果，格式为"[返回类型#]方法名:参数1,参数2,..."
     StringBuilder sb = new StringBuilder();
     // 返回类型
     Class<?> returnType = method.getReturnType();

@@ -51,12 +51,17 @@ import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author Clinton Begin
+ * Mapper构造器助手
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
+  // 当前mapper配置的namespace
   private String currentNamespace;
+  // mapper对应的资源路径
   private final String resource;
+  // 当前mapper配置的cache
   private Cache currentCache;
+  // 未解析的cacheRef
   private boolean unresolvedCacheRef; // issue #676
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
@@ -103,16 +108,20 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace + "." + base;
   }
 
+  // 使用指定namespace的Cache
   public Cache useCacheRef(String namespace) {
     if (namespace == null) {
       throw new BuilderException("cache-ref element requires a namespace attribute.");
     }
     try {
       unresolvedCacheRef = true;
+      // 1. 获取目标namespace中配置的<cache />信息
       Cache cache = configuration.getCache(namespace);
+      // 2. 目标cache不存在（可能还没有加载）
       if (cache == null) {
         throw new IncompleteElementException("No cache for namespace '" + namespace + "' could be found.");
       }
+      // 设置cache实例
       currentCache = cache;
       unresolvedCacheRef = false;
       return cache;
@@ -121,6 +130,17 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
   }
 
+  /**
+   * 创建Cache实例
+   * @param typeClass     Cache类型的Class
+   * @param evictionClass 数据过期处理策略Class
+   * @param flushInterval 刷新间隔
+   * @param size          容量
+   * @param readWrite     是否可写
+   * @param blocking      是否阻塞
+   * @param props         配置信息
+   * @return
+   */
   public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,
@@ -373,8 +393,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String resultSet,
       String foreignColumn,
       boolean lazy) {
+    // 1. 解析Class对象
     Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
+
+    // 2. 解析组合字段名称为ResultMapping集合，涉及关联嵌套查询
     List<ResultMapping> composites = parseCompositeColumnName(column);
     return new ResultMapping.Builder(configuration, property, column, javaTypeClass)
         .jdbcType(jdbcType)

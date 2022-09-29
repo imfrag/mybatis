@@ -90,8 +90,11 @@ public class CacheBuilder {
   }
 
   public Cache build() {
+    // 1. 设置Cache实现，implementation为空时默认为PerpetualCache，eviction为空时默认为LruCache
     setDefaultImplementations();
+    // 2. 通过反射获取构造方法，并实例化Cache对象
     Cache cache = newBaseCacheInstance(implementation, id);
+    // 3. 设置参数
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
     if (PerpetualCache.class.equals(cache.getClass())) {

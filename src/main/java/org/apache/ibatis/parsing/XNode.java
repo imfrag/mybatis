@@ -74,9 +74,12 @@ public class XNode {
   }
 
   public String getValueBasedIdentifier() {
+    // 结果字符串
     StringBuilder builder = new StringBuilder();
+    // 1. 设置当前实例
     XNode current = this;
     while (current != null) {
+      // current不等于当前实例时，在结果开端"_"字符
       if (current != this) {
         builder.insert(0, "_");
       }

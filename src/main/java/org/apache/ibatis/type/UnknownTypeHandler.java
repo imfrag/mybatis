@@ -30,8 +30,10 @@ import org.apache.ibatis.io.Resources;
  */
 public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
+  // ObjectTypeHandler单例对象
   private static final ObjectTypeHandler OBJECT_TYPE_HANDLER = new ObjectTypeHandler();
 
+  // TypeHandler注册器
   private TypeHandlerRegistry typeHandlerRegistry;
 
   public UnknownTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
@@ -41,7 +43,9 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
       throws SQLException {
+    // 1. 设置参数前，基于参数类型和jdbc类型获取匹配的TypeHandler
     TypeHandler handler = resolveTypeHandler(parameter, jdbcType);
+    // 2. 委托给TypeHandler设置
     handler.setParameter(ps, i, parameter, jdbcType);
   }
 

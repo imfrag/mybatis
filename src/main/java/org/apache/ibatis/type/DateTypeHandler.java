@@ -24,19 +24,23 @@ import java.util.Date;
 
 /**
  * @author Clinton Begin
+ * Date(Java) => Timestamp(JDBC)
  */
 public class DateTypeHandler extends BaseTypeHandler<Date> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Date parameter, JdbcType jdbcType)
       throws SQLException {
+    // 将传入的parameter转为Timestamp类型，并设置到PreparedStatement中
     ps.setTimestamp(i, new Timestamp(parameter.getTime()));
   }
 
   @Override
   public Date getNullableResult(ResultSet rs, String columnName)
       throws SQLException {
+    // 获取指定列的Timestamp值
     Timestamp sqlTimestamp = rs.getTimestamp(columnName);
+    // 值不为空时，转换为Date类型并返回
     if (sqlTimestamp != null) {
       return new Date(sqlTimestamp.getTime());
     }
