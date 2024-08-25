@@ -24,6 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -142,7 +143,7 @@ public class ParamNameResolver {
       return args[names.firstKey()];
     }
     else {
-      final Map<String, Object> param = new ParamMap<Object>();
+      final Map<String, Object> param = new MapperMethod.ParamMap<Object>();
       int i = 0;
       // 遍历参数映射集合
       for (Map.Entry<Integer, String> entry : names.entrySet()) {

@@ -59,6 +59,9 @@ public abstract class BaseExecutor implements Executor {
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
 
+  /**
+   * 嵌套select的深度
+   */
   protected int queryStack;
   private boolean closed;
 

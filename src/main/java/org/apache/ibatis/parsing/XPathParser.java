@@ -44,8 +44,10 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  // xml配置文件实例
   private final Document document;
   private boolean validation;
+  // 加载本地DTD文件
   private EntityResolver entityResolver;
   private Properties variables;
   private XPath xpath;

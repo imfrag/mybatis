@@ -48,9 +48,9 @@ public class Reflector {
 
   // 每个Reflector实例对应一个类
   private final Class<?> type;
-  // 可读属性
+  // 可读属性，存在getter方法
   private final String[] readablePropertyNames;
-  // 可写属性
+  // 可写属性，存在setter方法
   private final String[] writeablePropertyNames;
   // set方法
   private final Map<String, Invoker> setMethods = new HashMap<String, Invoker>();
